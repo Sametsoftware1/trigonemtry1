@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelişmiş Trigonometri Hesaplayıcı</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+        }
+        .container {
+            margin-top: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        #myChart {
+            margin-top: 30px;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .info, .function-info {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            color: #fff;
+        }
+        .info {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .function-info {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .function-info h5 {
+            margin-bottom: 10px;
+        }
+        @media (max-width: 576px) {
+            .result, .info, .function-info {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Gelişmiş Trigonometri Hesaplayıcı</h1>
+        <div class="form-group">
+            <label for="angle">Açı:</label>
+            <input type="number" class="form-control" id="angle" placeholder="Açı girin" />
+        </div>
+        <div class="form-group">
+            <label for="unit">Açı Birimi Seçin:</label>
+            <select class="form-control" id="unit">
+                <option value="degree">Derece</option>
+                <option value="radian">Radyan</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="function">Hesaplamak için fonksiyonu seçin:</label>
+            <select class="form-control" id="function">
+                <option value="sin">Sinüs</option>
+                <option value="cos">Kosinüs</option>
+                <option value="tan">Tanjant</option>
+                <option value="csc">Kosekans</option>
+                <option value="sec">Sekans</option>
+                <option value="cot">Kotanjant</option>
+                <option value="all">Tüm Fonksiyonları Göster</option>
+            </select>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="calculate()">Hesapla</button>
+        <div class="result" id="result"></div>
+        <canvas id="myChart"></canvas>
+        
+        <div class="info">
+            <h5>Hesaplama Bilgileri</h5>
+            <p>Açı değerini girin ve hangi trigonometri fonksiyonunu hesaplamak istediğinizi seçin. Hesapla butonuna tıkladığınızda sonuç ve grafik gösterilecektir.</p>
+        </div>
+        
+        <div class="function-info">
+            <h5>Fonksiyonlar Hakkında</h5>
+            <p><strong>Sinüs (sin):</strong> Bir açının karşı kenarının hipotenüse oranı.</p>
+            <p><strong>Kosinüs (cos):</strong> Bir açının komşu kenarının hipotenüse oranı.</p>
+            <p><strong>Tanjant (tan):</strong> Bir açının karşı kenarının komşu kenara oranı.</p>
+            <p><strong>Kosekans (csc):</strong> Hipotenüsün karşı kenara oranı (1/sin).</p>
+            <p><strong>Sekans (sec):</strong> Hipotenüsün komşu kenara oranı (1/cos).</p>
+            <p><strong>Kotanjant (cot):</strong> Komşu kenarın karşı kenara oranı (1/tan).</p>
+        </div>
+        
+        <div class="function-info">
+            <h5>Grafik Bilgileri</h5>
+            <p>Grafikte tüm fonksiyonlar için değerler gösterilmektedir. Özel durumlarda (örneğin, tanjantın sonsuza yaklaşması) bu değerler gizlenir.</p>
+            <p>Fonksiyonlar arasında karşılaştırma yaparak trigonometri konusundaki anlayışınızı derinleştirebilirsiniz.</p>
+        </div>
+
+        <div class="function-info">
+            <h5>Ek Özellikler</h5>
+            <p>Ayrıca aşağıdaki özellikleri kullanarak grafiklerinizi özelleştirebilirsiniz:</p>
+            <ul>
+                <li>Grafikteki renkleri değiştirme.</li>
+                <li>Her bir fonksiyonun değerlerini ayrı ayrı izleme.</li>
+                <li>Seçilen açı için hesaplamaları kaydetme.</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Samet Küçükdağ. Tüm hakları saklıdır.
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let myChart;
+
+        function calculate() {
+            const angle = parseFloat(document.getElementById('angle').value);
+            const selectedFunction = document.getElementById('function').value;
+            const unit = document.getElementById('unit').value;
+
+            if (isNaN(angle)) {
+                document.getElementById('result').innerHTML = '<div class="alert alert-danger">Lütfen geçerli bir açı girin.</div>';
+                return;
+            }
+
+            // Açıyı radyana çevir
+            const radians = unit === 'degree' ? angle * (Math.PI / 180) : angle;
+            let value;
+
+            switch (selectedFunction) {
+                case 'sin':
+                    value = Math.sin(radians).toFixed(4);
+                    break;
+                case 'cos':
+                    value = Math.cos(radians).toFixed(4);
+                    break;
+                case 'tan':
+                    value = Math.tan(radians).toFixed(4);
+                    break;
+                case 'csc':
+                    value = (1 / Math.sin(radians)).toFixed(4);
+                    break;
+                case 'sec':
+                    value = (1 / Math.cos(radians)).toFixed(4);
+                    break;
+                case 'cot':
+                    value = (1 / Math.tan(radians)).toFixed(4);
+                    break;
+                case 'all':
+                    value = `
+                        <strong>Sinüs:</strong> ${Math.sin(radians).toFixed(4)}<br>
+                        <strong>Kosinüs:</strong> ${Math.cos(radians).toFixed(4)}<br>
+                        <strong>Tanjant:</strong> ${Math.tan(radians).toFixed(4)}<br>
+                        <strong>Kosekans:</strong> ${(1 / Math.sin(radians)).toFixed(4)}<br>
+                        <strong>Sekans:</strong> ${(1 / Math.cos(radians)).toFixed(4)}<br>
+                        <strong>Kotanjant:</strong> ${(1 / Math.tan(radians)).toFixed(4)}
+                    `;
+                    break;
+            }
+
+            document.getElementById('result').innerHTML = `
+                <div class="alert alert-success">
+                    <strong>Sonuç:</strong><br>
+                    ${selectedFunction === 'all' ? value : `${selectedFunction.charAt(0).toUpperCase() + selectedFunction.slice(1)}: ${value}`}
+                </div>
+            `;
+            drawChart(selectedFunction);
+        }
+
+        function drawChart(selectedFunction) {
+            const angles = Array.from({ length: 360 }, (_, i) => i);
+            const sinValues = angles.map(angle => Math.sin(angle * (Math.PI / 180)));
+            const cosValues = angles.map(angle => Math.cos(angle * (Math.PI / 180)));
+            const tanValues = angles.map(angle => {
+                const tanValue = Math.tan(angle * (Math.PI / 180));
+                return Math.abs(tanValue) > 10 ? null : tanValue; // Tanjant sonsuzluğa yaklaşan değerleri gizle
+            });
+            const cscValues = angles.map(angle => (Math.abs(Math.sin(angle * (Math.PI / 180))) < 0.001 ? null : 1 / Math.sin(angle * (Math.PI / 180))));
+            const secValues = angles.map(angle => (Math.abs(Math.cos(angle * (Math.PI / 180))) < 0.001 ? null : 1 / Math.cos(angle * (Math.PI / 180))));
+            const cotValues = angles.map(angle => (Math.abs(Math.tan(angle * (Math.PI / 180))) < 0.001 ? null : 1 / Math.tan(angle * (Math.PI / 180))));
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            const ctx = document.getElementById('myChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: angles,
+                    datasets: [
+                        {
+                            label: 'Sinüs',
+                            data: sinValues,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            fill: false,
+                            lineTension: 0.1
+                        },
+                        {
+                            label: 'Kosinüs',
+                            data: cosValues,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            fill: false,
+                            lineTension: 0.1
+                        },
+                        {
+                            label: 'Tanjant',
+                            data: tanValues,
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            borderWidth: 2,
+                            fill: false,
+                            lineTension: 0.1,
+                            yAxisID: 'y-axis-2'
+                        },
+                        {
+                            label: 'Kosekans',
+                            data: cscValues,
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 2,
+                            fill: false,
+                            lineTension: 0.1
+                        },
+                        {
+                            label: 'Sekans',
+                            data: secValues,
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 2,
+                            fill: false,
+                            lineTension: 0.1
+                        },
+                        {
+                            label: 'Kotanjant',
+                            data: cotValues,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            fill: false,
+                            lineTension: 0.1,
+                            yAxisID: 'y-axis-2'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(2);
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Fonksiyon Değerleri'
+                            }
+                        },
+                        'y-axis-2': {
+                            type: 'linear',
+                            position: 'right',
+                            beginAtZero: false,
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Tanjant, Kosekans, Sekans, Kotanjant'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#333',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(4);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
